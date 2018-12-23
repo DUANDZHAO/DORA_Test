@@ -9,12 +9,12 @@ import java.sql.Statement;
 
 public class OrderDAOImp extends DAOBase implements OrderDAO
 {
-	//增，注册新用户
+	//增，增加新订单
 	public void insertOrder(Connection con,Order order)
 	{
 		Connection conn=con;
 		try {
-			String sql="insert into user values('"+order.getOrderid()+"','"+order.getOrdercolor()+"','"+order.getOrdersord()+"','"+order.getWhether()+"','"+order.getOrdertime()+"')";
+			String sql="insert into Order values('"+order.getOrderid()+"','"+order.getOrdercolor()+"','"+order.getOrdersord()+"','"+order.getWhether()+"','"+order.getOrdertime()+"')";
 		    Statement stmt=conn.createStatement();//创建用于执行静态sql语句的statement对象
 		    stmt.executeUpdate(sql);//执行插入操作的sql语句，并返回插入数据的个数
 		    String sql1 = "select * from Order";
@@ -32,7 +32,7 @@ public class OrderDAOImp extends DAOBase implements OrderDAO
 	          e.printStackTrace(); 
 	          }  
 	}
-	//改，改用户属性
+	//改，更改订单、删除
 	public void updateOrder(String sql,Connection con)
 	{
 		//创建用于执行静态sql语句的statement对象
@@ -48,25 +48,17 @@ public class OrderDAOImp extends DAOBase implements OrderDAO
 			e.printStackTrace();
 		}
 	}
-/*public User getUser(String sid)
-{
-	//查询一个学生信息
-}
-	public List<User>getUsers(String sql,Connection con)//查询多个学生的信息
-	{
-		Connection conn=con;
-		
-	}*/
+	
 	public LinkedList<String>SearchOrders(String sql,Connection con)
 	{
 		LinkedList<String> list = new LinkedList<String>();
 		try {
 		Connection conn=con;
 	    Statement stmt;
-			stmt = conn.createStatement();		
-	    ResultSet rs = stmt.executeQuery(sql);
+			stmt = conn.createStatement();	
+			ResultSet rs = stmt.executeQuery(sql);
 		while(rs.next()) {
-			String str = rs.getInt(1) + " " + rs.getString(2);
+			String str = rs.getString(1) + " " + rs.getString(2);
 			list.add(str);
 		}
 		conn.close();
