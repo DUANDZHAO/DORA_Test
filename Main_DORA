@@ -1,0 +1,19 @@
+import java.util.*;
+import DAODORA.*;
+public class Main_DORA {
+	public static void main(String args[])
+	{
+		String username,password;
+		@SuppressWarnings("resource")
+		Scanner reader=new Scanner(System.in);
+		System.out.println("欢迎使用DORA打印系统！请输入您的用户名和密码：");
+		User user=new User();
+		username=reader.nextLine();
+		password=reader.nextLine();
+		
+		
+		
+		
+	}
+
+}
