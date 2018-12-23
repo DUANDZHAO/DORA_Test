@@ -9,55 +9,9 @@ import java.sql.Statement;
 
 public class TypeDAOImp extends DAOBase implements TypeDAO
 {
-	//增，注册新用户
-	public void insertType(Connection con,Type type)
-	{
-		Connection conn=con;
-		try {
-			String sql="insert into user values('"+type.getTypeid()+"','"+type.getTypename()+"')";
-		    Statement stmt=conn.createStatement();//创建用于执行静态sql语句的statement对象
-		    stmt.executeUpdate(sql);//执行插入操作的sql语句，并返回插入数据的个数
-		    String sql1 = "select * from Type";
-		    ResultSet rs = stmt.executeQuery(sql1);
-		    while(rs.next()){
-				System.out.println(rs.getString(1) + " " + rs.getString(2));
-			}
-		    
-		    System.out.println("insert插入数据成功");
-		    stmt.close();
-			conn.close();
-		    }
-		catch (SQLException e) 
-		      {  
-	          e.printStackTrace(); 
-	          }  
-	}
-	//改，改用户属性
-	public void updateType(String sql,Connection con)
-	{
-		//创建用于执行静态sql语句的statement对象
-	    try {
-	    	Connection conn=con;
-	    Statement stmt=conn.createStatement();
-			stmt.executeUpdate(sql);
-			System.out.println("Update seccessful!");
-			stmt.close();
-			conn.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-/*public User getUser(String sid)
-{
-	//查询一个学生信息
-}
-	public List<User>getUsers(String sql,Connection con)//查询多个学生的信息
-	{
-		Connection conn=con;
-		
-	}*/
-	public LinkedList<String>SearchTypes(String sql,Connection con)
+	
+//查，查一个类别有哪些文件
+	public LinkedList<String>SearchTypes(String tid,Connection con)//tid类型号，测试函数如果输入一个类型名，则switch类型号
 	{
 		LinkedList<String> list = new LinkedList<String>();
 		try {
@@ -65,10 +19,10 @@ public class TypeDAOImp extends DAOBase implements TypeDAO
 	    Statement stmt;
 		
 			stmt = conn.createStatement();
-		
+		String sql="select * from Type,File,File_Type where (Type.typeid=File_Type.typeid) AND(File_Type.fileid=File.fileid) AND (Type.typeid=tid)";
 	    ResultSet rs = stmt.executeQuery(sql);
 		while(rs.next()) {
-			String str = rs.getInt(1) + " " + rs.getString(2);
+			String str = rs.getString(1) + " " + rs.getString(2) + " " +rs.getString(3);
 			list.add(str);
 		}
 		conn.close();
