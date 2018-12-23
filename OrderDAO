@@ -5,7 +5,7 @@ public interface OrderDAO
 
 {
 	public void insertOrder(Connection con,Order order);
-	public void updateOrder(String sql,Connection con);
+	public void updateOrder(String sql,Connection con);//删除订单信息
 	//public User getUser(String sid);//查询一个学生信息
 	//public List<User>getUsers(String sql);//查询多个学生的信息
 	public LinkedList<String>SearchOrders(String sql,Connection con);
