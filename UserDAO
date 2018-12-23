@@ -1,0 +1,11 @@
+package DAODORA;
+import java.util.*;
+import java.sql.Connection;
+public interface UserDAO 
+
+{
+	public void insertUser(Connection con,User user);
+	public void updateUser(String sql,Connection con);
+	public LinkedList<String>SearchUsers(String sql,Connection con);
+	
+}
