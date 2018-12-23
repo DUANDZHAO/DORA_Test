@@ -6,6 +6,8 @@ public interface UserDAO
 {
 	public void insertUser(Connection con,User user);
 	public void updateUser(String sql,Connection con);
-	public LinkedList<String>SearchUsers(String sql,Connection con);
+	public String getUser(String userid,Connection con);//查询一个学生信息，用户名和密码
+	//public List<User>getUsers(String sql);
+	public LinkedList<String>SearchUsers(String sql,Connection con);//查询多个学生的信息
 	
 }
