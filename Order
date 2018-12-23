@@ -1,0 +1,40 @@
+package DAODORA;
+public class Order
+{
+	private String orderid;
+	private String ordercolor;
+	private String ordersord;//单双面
+	private String ordertime;
+	private int whether;//1是打印0是未打印
+	public String getOrderid() {
+		return orderid;
+	}
+	public void setOrderid(String orderid) {
+		this.orderid = orderid;
+	}
+	public String getOrdercolor() {
+		return ordercolor;
+	}
+	public void setOrdercolor(String ordercolor) {
+		this.ordercolor = ordercolor;
+	}
+	public String getOrdersord() {
+		return ordersord;
+	}
+	public void setOrdersord(String ordersord) {
+		this.ordersord = ordersord;
+	}
+	public String getOrdertime() {
+		return ordertime;
+	}
+	public void setOrdertime(String ordertime) {
+		this.ordertime = ordertime;
+	}
+	public int getWhether() {
+		return whether;
+	}
+	public void setWhether(int whether) {
+		this.whether = whether;
+	}
+	
+}
