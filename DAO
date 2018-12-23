@@ -1,0 +1,5 @@
+package DAODORA;
+import java.sql.Connection;
+interface DAO {
+	public Connection getConnection();
+}
