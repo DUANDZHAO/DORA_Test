@@ -1,0 +1,84 @@
+package DAODORA;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class UserDAOImp extends DAOBase implements UserDAO
+{
+	//增，注册新用户
+	public void insertUser(Connection con,User user)
+	{
+		Connection conn=con;
+		try {
+			String sql="insert into user values('"+user.getUserid()+"','"+user.getUsername()+"','"+user.getHistory()+"','"+user.getPassword()+"')";
+		    Statement stmt=conn.createStatement();//创建用于执行静态sql语句的statement对象
+		    stmt.executeUpdate(sql);//执行插入操作的sql语句，并返回插入数据的个数
+		    String sql1 = "select * from User";
+		    ResultSet rs = stmt.executeQuery(sql1);
+		    while(rs.next()){
+				System.out.println(rs.getString(1) + " " + rs.getString(2));
+			}
+		    
+		    System.out.println("insert插入数据成功");
+		    stmt.close();
+			conn.close();
+		    }
+		catch (SQLException e) 
+		      {  
+	          e.printStackTrace(); 
+	          }  
+	}
+	//改，改用户属性
+	public void updateUser(String sql,Connection con)
+	{
+		//创建用于执行静态sql语句的statement对象
+	    try {
+	    	Connection conn=con;
+	    Statement stmt=conn.createStatement();
+			stmt.executeUpdate(sql);
+			System.out.println("Update seccessful!");
+			stmt.close();
+			conn.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+/*public User getUser(String sid)
+{
+	//查询一个学生信息
+}
+	public List<User>getUsers(String sql,Connection con)//查询多个学生的信息
+	{
+		Connection conn=con;
+		
+	}*/
+	public LinkedList<String>SearchUsers(String sql,Connection con)
+	{
+		LinkedList<String> list = new LinkedList<String>();
+		try {
+		Connection conn=con;
+	    Statement stmt;	
+	    stmt = conn.createStatement();		
+	    ResultSet rs = stmt.executeQuery(sql);
+		while(rs.next()) {
+			String str = rs.getInt(1) + " " + rs.getString(2);
+			list.add(str);
+		}
+		conn.close();
+		stmt.close();
+		rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return list;
+
+
+		
+	}
+}
