@@ -1,0 +1,10 @@
+package DAODORA;
+import java.util.*;
+import java.sql.Connection;
+public interface FileDAO
+{
+	public void insertFile(Connection con,File file);
+	public void updateFile(String sql,Connection con);
+	public LinkedList<String>SearchFiles(String sql,Connection con);
+	
+}
