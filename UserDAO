@@ -4,10 +4,16 @@ import java.sql.Connection;
 public interface UserDAO 
 
 {
-	public void insertUser(Connection con,User user);
-	public void updateUser(String sql,Connection con);
-	public String getUser(String userid,Connection con);//查询一个学生信息，用户名和密码
+	public static void insertUser(Connection con,User user) {
+	}
+	public static void updateUser(String sql,Connection con) {
+	}
+	public static String getUser(String userid,Connection con) {
+		return null;
+	}//查询一个学生信息，用户名和密码
 	//public List<User>getUsers(String sql);
-	public LinkedList<String>SearchUsers(String sql,Connection con);//查询多个学生的信息
+	/*public static LinkedList<String>SearchUsers(String sql,Connection con) {
+		return null;
+	}//查询多个用户的信息*/
 	
 }
