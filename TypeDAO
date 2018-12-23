@@ -1,0 +1,11 @@
+package DAODORA;
+import java.util.*;
+import java.sql.Connection;
+public interface TypeDAO 
+
+{
+	public void insertType(Connection con,Type type);
+	public void updateType(String sql,Connection con);
+	public LinkedList<String>SearchTypes(String sql,Connection con);
+	
+}
