@@ -1,18 +1,50 @@
 import java.util.*;
 import DAODORA.*;
+import java.sql.*;
 public class Main_DORA {
 	public static void main(String args[])
 	{
-		String username,password;
+		Connection conn;
+		conn=DAOBase.getConnection();
+
+		String userid,password;
+		int i=0;
+		String sql,sql1;
 		@SuppressWarnings("resource")
 		Scanner reader=new Scanner(System.in);
 		System.out.println("欢迎使用DORA打印系统！请输入您的用户名和密码：");
 		User user=new User();
-		username=reader.nextLine();
+		userid=reader.nextLine();
 		password=reader.nextLine();
+		if(password.equals(UserDAO.getUser(userid, conn)))
+		{
+			System.out.println("登录成功！");
+			System.out.println("您未打印的文件有："+"\n");
+			sql=null;
+			sql="select * from User_Order,File_Order,File where (User_Order.orderid=File_Order.orderid) and (whether=0) and userid=";
+			sql1=sql.concat(userid);
+			System.out.println(FileDAOImp.SearchFiles(sql1, conn));
+			LinkedList<String> list=FileDAOImp.SearchFiles(sql1, conn);
+			i=list.size();
+			System.out.println("\n"+"您历史打印的文件有："+i+"份"+"\n");
+			sql="select * from User_Order,File_Order,File where (User_Order.orderid=File_Order.orderid) and (whether=1) and userid=";
+			sql1=sql.concat(userid);
+			System.out.println(FileDAOImp.SearchFiles(sql1, conn));
+
+			
+			
+			
+			
+			
+			
+			
+			
+		}
 		
-		
-		
+		else
+		{
+			System.out.println("用户名与密码不匹配！");
+		}
 		
 	}
 
