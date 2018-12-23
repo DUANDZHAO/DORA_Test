@@ -48,15 +48,23 @@ public class UserDAOImp extends DAOBase implements UserDAO
 			e.printStackTrace();
 		}
 	}
-/*public User getUser(String sid)
-{
-	//查询一个学生信息
-}
-	public List<User>getUsers(String sql,Connection con)//查询多个学生的信息
+	//查询一个学生信息，用户名和密码
+	public String getUser(String uid,Connection con)
 	{
-		Connection conn=con;
-		
-	}*/
+		String password=null;
+		try
+		{
+			Connection conn=con;
+			Statement stmt=conn.createStatement();
+			String sql="select password from User where userid=uid";
+			ResultSet rs = stmt.executeQuery(sql);
+			password=rs.getString(1);
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return password;
+	}
 	public LinkedList<String>SearchUsers(String sql,Connection con)
 	{
 		LinkedList<String> list = new LinkedList<String>();
