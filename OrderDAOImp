@@ -1,6 +1,7 @@
 package DAODORA;
 
 import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -8,22 +9,43 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class OrderDAOImp extends DAOBase implements OrderDAO
-{
+{	
+	public int howmany;
 	//增，增加新订单
-	public void insertOrder(Connection con,Order order)
+	public void insertOrder(User user,Connection con)//用户端在函数里面输入文件号，单双面和颜色,在fo对象中设置好
 	{
 		Connection conn=con;
+		LinkedList<String> list = new LinkedList<String>();
+		Scanner sc=new Scanner(System.in);
 		try {
-			String sql="insert into Order values('"+order.getOrderid()+"','"+order.getOrdercolor()+"','"+order.getOrdersord()+"','"+order.getWhether()+"','"+order.getOrdertime()+"')";
-		    Statement stmt=conn.createStatement();//创建用于执行静态sql语句的statement对象
-		    stmt.executeUpdate(sql);//执行插入操作的sql语句，并返回插入数据的个数
-		    String sql1 = "select * from Order";
-		    ResultSet rs = stmt.executeQuery(sql1);
-		    while(rs.next()){
-				System.out.println(rs.getString(1) + " " + rs.getString(2));
+			
+			//order里加一条，读取现在order的长度，然后赋值id号
+			Statement stmt;
+			stmt = conn.createStatement();	
+			String sql="select * from Order";
+			ResultSet rs = stmt.executeQuery(sql);
+			while(rs.next()) {
+			String str = rs.getString(1) + " " + rs.getString(2)+" " +rs.getString(3)+" " +rs.getString(4)+" " +rs.getString(5)+" " +rs.getString(6)+" " +rs.getString(7)+" " +rs.getString(8)+" " +rs.getString(9)+" " + rs.getString(10)+" " +rs.getString(11)+" " +rs.getString(12)+" " +rs.getString(13)+" " +rs.getString(14)+" " +rs.getString(15)+" " +rs.getString(16)+" " +rs.getString(17)+" " + rs.getInt(18)+" " +rs.getString(19)+" " +rs.getString(20)+" " +rs.getString(21)+" " +rs.getInt(22);
+			list.add(str);
 			}
+			howmany=list.size();//读取order长度,得到订单号
+			sql="insert into Orders(orderid,time,whether) values('"+howmany++ +"','"+"now"+"','"+0+"')";//未能实现时间同步，如何显示当前时间？？
+			stmt.executeUpdate(sql);
+			System.out.println("order增加成功！");
+			//添加User_Order内一条，用户id和新的orderid匹配
+			sql="insert into User_Order(orderid,userid) values('"+howmany++ +"','"+user.getUserid()+"')";//未能实现时间同步，如何显示当前时间？？
+			stmt.executeUpdate(sql);
+			System.out.println("user增加成功！");
+			//添加File_Order内一条，文件是已经上传到库里的，需要匹配一下就行
+			System.out.println("请输入要打印的文件的个数：");
+			int filemany=sc.nextInt();//有这么多个文件将要打印
+			for(int i=0;i<filemany;i++)
+			{
+				System.out.println("请输入要打印的文件号，打印颜色，正反方式：（以空格隔开）");
+				sql="insert into File_Order(orderid,fileid,color,sigledouble)values('"+howmany++ +"','"+sc.next()+"','"+sc.next()+"','"+sc.next()+"')";
+			}
+			System.out.println("File_Order增加成功！");
 		    
-		    System.out.println("insert插入数据成功");
 		    stmt.close();
 			conn.close();
 		    }
@@ -32,14 +54,26 @@ public class OrderDAOImp extends DAOBase implements OrderDAO
 	          e.printStackTrace(); 
 	          }  
 	}
-	//改，更改订单、删除
-	public void updateOrder(String sql,Connection con)
+	//改，删除订单，所有该订单的文件也被删除，通过订单号删除
+	public void updateOrder(String oid,String uid,Connection con)
 	{
 		//创建用于执行静态sql语句的statement对象
 	    try {
 	    	Connection conn=con;
-	    Statement stmt=conn.createStatement();
+	    	Statement stmt=conn.createStatement();
+	    	//删除File_Order内一条
+			String sql="delete from File_Order where orderid=";
+			sql=sql.concat(oid);
+		   //删除Order内一条
+			sql="delete from File_Order where orderid="+oid;
 			stmt.executeUpdate(sql);
+			//删除File_User内一条
+			sql="delete from File_Order where orderid="+oid;
+			stmt.executeUpdate(sql);
+			//删除file内多条
+			sql="delete from File_Order where orderid="+oid;
+			stmt.executeUpdate(sql);
+
 			System.out.println("Update seccessful!");
 			stmt.close();
 			conn.close();
@@ -48,9 +82,11 @@ public class OrderDAOImp extends DAOBase implements OrderDAO
 			e.printStackTrace();
 		}
 	}
-	
-	public LinkedList<String>SearchOrders(String sql,Connection con)
+	//查询多个订单的信息，通过用户号和是否打印的字段查到已打订单和未打订单
+	public LinkedList<String>SearchOrders(String userid,Integer wheather,Connection con)
 	{
+		String sql="select *" + 
+				"from File_Order,File_Type,Files,Type,User_Order,Users,Orders"+userid+"and Order.wheather="+Integer.toString(wheather);
 		LinkedList<String> list = new LinkedList<String>();
 		try {
 		Connection conn=con;
@@ -58,9 +94,11 @@ public class OrderDAOImp extends DAOBase implements OrderDAO
 			stmt = conn.createStatement();	
 			ResultSet rs = stmt.executeQuery(sql);
 		while(rs.next()) {
-			String str = rs.getString(1) + " " + rs.getString(2);
+			//通过上面的查看有几个表
+			String str = rs.getString(1) + " " + rs.getString(2)+" " +rs.getString(3)+" " +rs.getString(4)+" " +rs.getString(5)+" " +rs.getString(6)+" " +rs.getString(7)+" " +rs.getString(8)+" " +rs.getString(9)+" " + rs.getString(10)+" " +rs.getString(11)+" " +rs.getString(12)+" " +rs.getString(13)+" " +rs.getString(14)+" " +rs.getString(15)+" " +rs.getString(16)+" " +rs.getString(17)+" " + rs.getInt(18)+" " +rs.getString(19)+" " +rs.getString(20)+" " +rs.getString(21)+" " +rs.getInt(22);
 			list.add(str);
 		}
+		howmany=list.size();
 		conn.close();
 		stmt.close();
 		rs.close();
@@ -69,8 +107,27 @@ public class OrderDAOImp extends DAOBase implements OrderDAO
 			e.printStackTrace();
 		}
 		return list;
-
+		//改，实现用户打印时，把订单的whether值由0改成1，避免重复打印
+		
 
 		
 	}
-}
+	public static void updateOrderwhether(String oid,String uid,Connection con)
+		{
+			//创建用于执行静态sql语句的statement对象
+		    try {
+		    	Connection conn=con;
+		    	Statement stmt=conn.createStatement();
+		    	String sql="update select * from Order,User_Order where (Order.orderid=User_Order.orderid) set whether=0 where orderid="+oid+"and userid"+uid;
+		    	stmt.executeUpdate(sql);
+				
+		    	
+				
+				System.out.println("Update seccessful!");
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
