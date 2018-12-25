@@ -10,20 +10,15 @@ import java.sql.Statement;
 public class UserDAOImp extends DAOBase implements UserDAO
 {
 	//增，注册新用户
-	public  static void insertUser(Connection con,User user)
+	public  static void insertUser(User user)
 	{
-		Connection conn=con;
+		Connection conn=null;
 		try {
-			String sql="insert into user values('"+user.getUserid()+"','"+user.getUsername()+"','"+user.getHistory()+"','"+user.getPassword()+"')";
+			conn=DAOBase.getConnection();
+			String sql="insert into [Users] values('"+user.getUserid()+"','"+user.getUsername()+"','"+user.getHistory()+"','"+user.getPassword()+"')";
 		    Statement stmt=conn.createStatement();//创建用于执行静态sql语句的statement对象
 		    stmt.executeUpdate(sql);//执行插入操作的sql语句，并返回插入数据的个数
-		    String sql1 = "select * from User";
-		    ResultSet rs = stmt.executeQuery(sql1);
-		    while(rs.next()){
-				System.out.println(rs.getString(1) + " " + rs.getString(2));
-			}
-		    
-		    System.out.println("insert插入数据成功");
+		    System.out.println("注册成功！");
 		    stmt.close();
 			conn.close();
 		    }
