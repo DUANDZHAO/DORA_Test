@@ -1,51 +1,77 @@
 import java.util.*;
-import DAODORA.*;
 import java.sql.*;
+import java.util.*;
+import DAOConnection.*;
+import Type.*;
+import User.*;
+import Order.*;
+import File.*;
+
 public class Main_DORA {
-	public static void main(String args[])
+	public static void main(String args[]) {
+		Connection conn=null;
+		try {
+			conn=DAOBase.getConnection();
+			Statement stmt=conn.createStatement();
+			conn.close();
+			stmt.close();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	
+	int i=0;
+	String userid,username,password,sql;
+	User user=new User();
+	Scanner reader=new Scanner(System.in);
+	System.out.println("您好！欢迎使用多啦打印系统！注册新用户请输入1，已经注册过请输入2");
+	i=reader.nextInt();
+	if(i==1)
 	{
-		Connection conn;
-		conn=DAOBase.getConnection();
-
-		String userid,password;
-		int i=0;
-		String sql,sql1;
-		@SuppressWarnings("resource")
-		Scanner reader=new Scanner(System.in);
-		System.out.println("欢迎使用DORA打印系统！请输入您的用户名和密码：");
-		User user=new User();
+		System.out.println("请输入您的用户编号，用户名和密码");
 		userid=reader.nextLine();
+		userid=reader.nextLine();		
+		username=reader.nextLine();
 		password=reader.nextLine();
-		if(password.equals(UserDAO.getUser(userid, conn)))
-		{
-			System.out.println("登录成功！");
-			System.out.println("您未打印的文件有："+"\n");
-			sql=null;
-			sql="select * from User_Order,File_Order,File where (User_Order.orderid=File_Order.orderid) and (whether=0) and userid=";
-			sql1=sql.concat(userid);
-			System.out.println(FileDAOImp.SearchFiles(sql1, conn));
-			LinkedList<String> list=FileDAOImp.SearchFiles(sql1, conn);
-			i=list.size();
-			System.out.println("\n"+"您历史打印的文件有："+i+"份"+"\n");
-			sql="select * from User_Order,File_Order,File where (User_Order.orderid=File_Order.orderid) and (whether=1) and userid=";
-			sql1=sql.concat(userid);
-			System.out.println(FileDAOImp.SearchFiles(sql1, conn));
-
-			
-			
-			
-			
-			
-			
-			
-			
-		}
-		
-		else
-		{
-			System.out.println("用户名与密码不匹配！");
-		}
-		
+		user.setUserid(userid);
+		user.setUsername(username);
+		user.setPassword(password);
+		user.setHistory(0);
+		UserDAOImp.insertUser(user);
 	}
+	else {}
+		System.out.println("请输入您的用户编号和密码");
+	    userid=reader.nextLine();		
+	    password=reader.nextLine();
+	    int flag=1;
+	  while(flag==1)
+	  {
+	    if(password==UserDAOImp.getUser(userid))
+	    {
+	    	flag=0;
+			System.out.println("登录成功！"+"\n"+"请输入您想要进行的操作："+"\n"+"1——查看历史打印信息"+"\n"+
+	    	"2——查看未完成订单信息"+"\n"+"3——增加订单"+"\n"+"修改密码");
+			switch(reader.nextInt())
+			{
+			case 1:;
+			System.out.println(FileDAOImp.getFile(userid, 1));
+			break;
+			case 2:
+				System.out.println(OrderDAOImp.SearchOrders(userid, 0));
+				break;
+			case 3:
 
-}
+			
+			
+			}
+			
+
+	    }
+	    else
+	    {
+			System.out.println("用户编号与密码不匹配，请重新输入");
+			flag=1;
+	    }
+	  }
+
+	
