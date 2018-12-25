@@ -12,7 +12,7 @@ public class OrderDAOImp extends DAOBase implements OrderDAO
 {	
 	public int howmany;
 	//增，增加新订单
-	public void insertOrder(User user,Connection con)//用户端在函数里面输入文件号，单双面和颜色,在fo对象中设置好
+	public void insertOrder(User user,Connection con)//用户端在函数里面输入文件号，单双面和颜色
 	{
 		Connection conn=con;
 		LinkedList<String> list = new LinkedList<String>();
@@ -33,7 +33,7 @@ public class OrderDAOImp extends DAOBase implements OrderDAO
 			stmt.executeUpdate(sql);
 			System.out.println("order增加成功！");
 			//添加User_Order内一条，用户id和新的orderid匹配
-			sql="insert into User_Order(orderid,userid) values('"+howmany++ +"','"+user.getUserid()+"')";//未能实现时间同步，如何显示当前时间？？
+			sql="insert into User_Order(orderid,userid) values('"+howmany++ +"','"+user.getUserid()+"')";
 			stmt.executeUpdate(sql);
 			System.out.println("user增加成功！");
 			//添加File_Order内一条，文件是已经上传到库里的，需要匹配一下就行
