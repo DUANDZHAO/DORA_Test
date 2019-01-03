@@ -7,5 +7,5 @@ public interface TypeDAO
 	public static LinkedList<String>SearchTypes(String tid,String uid,Integer wea){
 		return null;
 	}//查，查一个类别有什么文件
-	
+
 }
