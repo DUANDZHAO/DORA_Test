@@ -1,14 +1,14 @@
-package DAODORA;
-import java.util.*;
+package User;
 import java.sql.Connection;
+import DbcpUtil.*;
 public interface UserDAO 
 
 {
-	public static void insertUser(Connection con,User user) {
+	public static void insertUser(User user) {
 	}
-	public static void updateUser(String sql,Connection con) {
+	public static void updateUser(String userid) {
 	}
-	public static String getUser(String userid,Connection con) {
+	public static String getUser(String userid) {
 		return null;
 	}//查询一个学生信息，用户名和密码
 	//public List<User>getUsers(String sql);
