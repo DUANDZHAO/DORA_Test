@@ -1,4 +1,4 @@
-package DAODORA;
+package Type;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -6,31 +6,47 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import DbcpUtil.*;
 
-public class TypeDAOImp extends DAOBase implements TypeDAO
+public class TypeDAOImp implements TypeDAO
 {
 	
-//查，查一个类别有哪些文件
-	public LinkedList<String>SearchTypes(String tid,Connection con)//tid类型号，测试函数如果输入一个类型名，则switch类型号
+//查，查一个类别有哪些文件//传进来就提前确定打不打了//!!!!!他说我sql语句。附近有错误
+	public static LinkedList<String>SearchTypes(String tid,String uid,Integer wea)//tid类型号，测试函数如果输入一个类型名，则switch类型号
 	{
+		Connection conn=null;
+		Statement stmt=null;
+		ResultSet rs=null;
 		LinkedList<String> list = new LinkedList<String>();
 		try {
-		Connection conn=con;
-	    Statement stmt;
-		
+			conn=DbcpJdbcUtil.getConnection();
 			stmt = conn.createStatement();
-		String sql="select * from Type,File,File_Type where (Type.typeid=File_Type.typeid) AND(File_Type.fileid=File.fileid) AND (Type.typeid=tid)";
-	    ResultSet rs = stmt.executeQuery(sql);
+		String sql="select DORA2_0.dbo.Type.typeid,DORA2_0.dbo.Type.typename,T1.fileid,T1.filename\r\n" + 
+				"From DORA2_0.dbo.Type,DORA2_0.dbo.File_Type,\r\n" + 
+				"(select DORA2_0.dbo.Files.fileid,filename\r\n" + 
+				"from DORA2_0.dbo.File_Order,DORA2_0.dbo.File_Type,DORA2_0.dbo.Files,DORA2_0.dbo.Type,DORA2_0.dbo.User_Order,DORA2_0.dbo.Users,DORA2_0.dbo.Orders \r\n" + 
+				"where DORA2_0.dbo.Users.userid='" +uid+
+				"' and whether=" + Integer.toString(wea)+
+				" and DORA2_0.dbo.User_Order.orderid=DORA2_0.dbo.Orders.orderid \r\n" + 
+				" and DORA2_0.dbo.User_Order.userid=DORA2_0.dbo.Users.userid  and DORA2_0.dbo.File_Order.fileid=DORA2_0.dbo.Files.fileid \r\n" + 
+				" and DORA2_0.dbo.File_Order.orderid=DORA2_0.dbo.Orders.orderid  and DORA2_0.dbo.File_Type.fileid=DORA2_0.dbo.Files.fileid \r\n" + 
+				" and DORA2_0.dbo.File_Type.typeid=DORA2_0.dbo.Type.typeid) as T1\r\n" + 
+				"where DORA2_0.dbo.Type.typeid='type"+tid+"' and DORA2_0.dbo.Type.typeid=DORA2_0.dbo.File_Type.typeid and T1.fileid=File_Type.fileid\r\n" + 
+				"";
+
+	    rs = stmt.executeQuery(sql);
+	    System.out.println("类型号	      类型名   文件号      	文件名");
 		while(rs.next()) {
-			String str = rs.getString(1) + " " + rs.getString(2) + " " +rs.getString(3);
+			String str = rs.getString(1) + " " + rs.getString(2) + " " +rs.getString(3)+ " " +rs.getString(4);
 			list.add(str);
+			System.out.println(str);
 		}
-		conn.close();
-		stmt.close();
-		rs.close();
+		
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally {
+		    DbcpJdbcUtil.release(conn, stmt,rs);
 		}
 		return list;
 
