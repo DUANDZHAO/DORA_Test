@@ -1,17 +1,21 @@
-package DAODORA;
+package Order;
 import java.util.*;
+
+import User.User;
+
 import java.sql.Connection;
 public interface OrderDAO 
 
 {
-	public static void insertOrder(Connection con,Order order) {
+	public static void insertOrder(User user){
 	}
-	public static void updateOrder(String sql,Connection con) {
+	public static void updateOrder(User user) {
 	}//删除订单信息
-	public static LinkedList<String>SearchOrders(String userid,Integer wheather,Connection con) {
+	public static LinkedList<String>SearchOrders(String userid){
 		return null;
 	}//查询多个订单的信息，历史订单、要打印的订单信息
-	public static void updateOrderwhether(String oid,String uid,Connection con) {
-	}//把订单whether值从0改成1
-	
-}
+
+	public static void updateOrderwhether(String uid){ 
+		return;
+    }
+}//把订单whether值从0改成1 
