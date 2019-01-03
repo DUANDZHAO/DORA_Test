@@ -1,5 +1,5 @@
-package DAODORA;
-
+package File;
+import DbcpUtil.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.sql.Connection;
@@ -7,78 +7,66 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class FileDAOImp extends DAOBase implements FileDAO
+public class FileDAOImp implements FileDAO
 {
-	//增，注册新用户
-	public static void insertFile(Connection con,File file)
+	//增，增加新文件
+	public static void insertFile(File file)
 	{
-		Connection conn=con;
+		Connection conn=null;
+		Statement stmt=null;
+		ResultSet rs=null;
 		try {
-			String sql="insert into user values('"+file.getFileid()+"','"+file.getFilename()+"','"+file.getFilesize()+"','"+file.getFilepages()+"','"+file.getFiletime()+"')";
-		    Statement stmt=conn.createStatement();//创建用于执行静态sql语句的statement对象
+			conn=DbcpJdbcUtil.getConnection();
+			String sql="insert into DORA2_0.dbo.File values('"+file.getFileid()+"','"+file.getFilename()+"','"+file.getFilesize()+"','"+file.getFilepages()+"','"+file.getFiletime()+"')";
+		    stmt=conn.createStatement();//创建用于执行静态sql语句的statement对象
 		    stmt.executeUpdate(sql);//执行插入操作的sql语句，并返回插入数据的个数
 		    String sql1 = "select * from File";
-		    ResultSet rs = stmt.executeQuery(sql1);
+		   rs = stmt.executeQuery(sql1);
 		    while(rs.next()){
 				System.out.println(rs.getString(1) + " " + rs.getString(2));
 			}
 		    
 		    System.out.println("insert插入数据成功");
-		    stmt.close();
-			conn.close();
+		    
 		    }
 		catch (SQLException e) 
 		      {  
 	          e.printStackTrace(); 
-	          }  
+	          }  finally {
+	        	    DbcpJdbcUtil.release(conn, stmt,rs);
+	          }
 	}
-	//改，改用户属性
-	public static void updateFile(String sql, Connection con) 
-	{
-		//创建用于执行静态sql语句的statement对象
-	    try {
-	    	Connection conn=con;
-	    Statement stmt=conn.createStatement();
-			stmt.executeUpdate(sql);
-			System.out.println("Update seccessful!");
-			stmt.close();
-			conn.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-/*public User getUser(String sid)
-{
-	//查询一个学生信息
-}
-	public List<User>getUsers(String sql,Connection con)//查询多个学生的信息
-	{
-		Connection conn=con;
-		
-	}*/
-	public static LinkedList<String>SearchFiles(String sql,Connection con)
-	{
-		LinkedList<String> list = new LinkedList<String>();
-		try {
-		Connection conn=con;
-	    Statement stmt;
-			stmt = conn.createStatement();		
-	    ResultSet rs = stmt.executeQuery(sql);
-		while(rs.next()) {
-			String str = rs.getString(1) + " " + rs.getString(2)+" "+rs.getInt(3)+" "+rs.getInt(4)+" "+rs.getString(5);
-			list.add(str);
-		}
-		conn.close();
-		stmt.close();
-		rs.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return list;
-
-
-		
+	
+	//查询文件的详细信息
+		public static LinkedList<String> getFile(String userid)
+		{
+			LinkedList<String> list = new LinkedList<String>();
+			Connection conn=null;
+			Statement stmt=null;
+			ResultSet rs=null;
+			try
+			{
+				conn=DbcpJdbcUtil.getConnection();
+				stmt=conn.createStatement();
+				  String sql="select DORA2_0.dbo.Orders.orderid,DORA2_0.dbo.Files.fileid,filename,color,singleordouble "
+				    		+ "from DORA2_0.dbo.File_Order,DORA2_0.dbo.File_Type,DORA2_0.dbo.Files,DORA2_0.dbo.Type,DORA2_0.dbo.User_Order,DORA2_0.dbo.Users,DORA2_0.dbo.Orders "
+				    		+ "where DORA2_0.dbo.Users.userid="+userid
+				    		+ "and whether=1 and DORA2_0.dbo.User_Order.orderid=DORA2_0.dbo.Orders.orderid and DORA2_0.dbo.User_Order.userid=DORA2_0.dbo.Users.userid "
+				    		+ " and DORA2_0.dbo.File_Order.fileid=DORA2_0.dbo.Files.fileid and DORA2_0.dbo.File_Order.orderid=DORA2_0.dbo.Orders.orderid  "
+				    		+ "and DORA2_0.dbo.File_Type.fileid=DORA2_0.dbo.Files.fileid and DORA2_0.dbo.File_Type.typeid=DORA2_0.dbo.Type.typeid";		
+				  rs = stmt.executeQuery(sql);
+				    System.out.println("订单号                         文件号                                  文件名               打印方式 ");
+				while(rs.next()) {
+					String str = rs.getString(1) + " " + rs.getString(2) + " " +rs.getString(3)+ " " +rs.getString(4);
+					System.out.println(str);
+					list.add(str);				
+				}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}finally {
+				    DbcpJdbcUtil.release(conn, stmt,rs);
+				}
+			return list;		
 	}
 }
