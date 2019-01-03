@@ -1,134 +1,224 @@
-package DAODORA;
+package Order;
 
-import java.util.LinkedList;
+import DbcpUtil.*;
+import User.User;
+
 import java.util.*;
-import java.util.List;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 
-public class OrderDAOImp extends DAOBase implements OrderDAO
-{	
-	public int howmany;
+public class OrderDAOImp implements OrderDAO
+{
+	public static String getFormatDate(){
+	    Date date = new Date();
+	    long times = date.getTime();//时间戳
+	    SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
+	    return formatter.format(date);
+	  }
+
+	
 	//增，增加新订单
-	public void insertOrder(User user,Connection con)//用户端在函数里面输入文件号，单双面和颜色
+	public static void insertOrder(User user)//用户端在函数里面输入文件号，单双面和颜色,一次增加一个order，因为用户打印文件时希望一次打完
 	{
-		Connection conn=con;
+		Connection conn=null;
+		Statement stmt=null;
+		int howmany;
 		LinkedList<String> list = new LinkedList<String>();
 		Scanner sc=new Scanner(System.in);
-		try {
-			
+		try {			
 			//order里加一条，读取现在order的长度，然后赋值id号
-			Statement stmt;
-			stmt = conn.createStatement();	
-			String sql="select * from Order";
+			conn=DbcpJdbcUtil.getConnection();
+			stmt=conn.createStatement();
+			String sql="select DORA2_0.dbo.Orders.orderid from DORA2_0.dbo.Orders";
 			ResultSet rs = stmt.executeQuery(sql);
 			while(rs.next()) {
-			String str = rs.getString(1) + " " + rs.getString(2)+" " +rs.getString(3)+" " +rs.getString(4)+" " +rs.getString(5)+" " +rs.getString(6)+" " +rs.getString(7)+" " +rs.getString(8)+" " +rs.getString(9)+" " + rs.getString(10)+" " +rs.getString(11)+" " +rs.getString(12)+" " +rs.getString(13)+" " +rs.getString(14)+" " +rs.getString(15)+" " +rs.getString(16)+" " +rs.getString(17)+" " + rs.getInt(18)+" " +rs.getString(19)+" " +rs.getString(20)+" " +rs.getString(21)+" " +rs.getInt(22);
+			String str = rs.getString(1);
 			list.add(str);
-			}
-			howmany=list.size();//读取order长度,得到订单号
-			sql="insert into Orders(orderid,time,whether) values('"+howmany++ +"','"+"now"+"','"+0+"')";//未能实现时间同步，如何显示当前时间？？
+			}//读取order长度,得到订单号			
+      		int num=list.size()+1;
+			sql="insert into DORA2_0.dbo.Orders values('order"+num+"','"+getFormatDate()+"','"+0+"')";
 			stmt.executeUpdate(sql);
 			System.out.println("order增加成功！");
+			System.out.println(user.getUserid());
+
 			//添加User_Order内一条，用户id和新的orderid匹配
-			sql="insert into User_Order(orderid,userid) values('"+howmany++ +"','"+user.getUserid()+"')";
+				sql="insert into DORA2_0.dbo.User_Order values('order"+num+"','"+user.getUserid()+"')";
 			stmt.executeUpdate(sql);
-			System.out.println("user增加成功！");
+			System.out.println("User_Order增加成功！");
 			//添加File_Order内一条，文件是已经上传到库里的，需要匹配一下就行
-			System.out.println("请输入要打印的文件的个数：");
+		System.out.println("请输入要打印的文件的个数：");
 			int filemany=sc.nextInt();//有这么多个文件将要打印
-			for(int i=0;i<filemany;i++)
+		for(int i=0;i<filemany;i++)
 			{
-				System.out.println("请输入要打印的文件号，打印颜色，正反方式：（以空格隔开）");
-				sql="insert into File_Order(orderid,fileid,color,sigledouble)values('"+howmany++ +"','"+sc.next()+"','"+sc.next()+"','"+sc.next()+"')";
+				System.out.println("请输入要打印的文件号，打印颜色，正反方式:");//假设用户知道自己要打印的文件号
+				sql="insert into DORA2_0.dbo.File_Order values('order"+num +"','"+sc.next()+"','"+sc.next()+"','"+sc.next()+"')";
+				stmt.executeUpdate(sql);
 			}
 			System.out.println("File_Order增加成功！");
-		    
-		    stmt.close();
-			conn.close();
+		   
 		    }
 		catch (SQLException e) 
 		      {  
 	          e.printStackTrace(); 
-	          }  
+	          }  finally {
+	              DbcpJdbcUtil.release(conn, stmt, null);
+	    }
 	}
-	//改，删除订单，所有该订单的文件也被删除，通过订单号删除
-	public void updateOrder(String oid,String uid,Connection con)
-	{
-		//创建用于执行静态sql语句的statement对象
-	    try {
-	    	Connection conn=con;
-	    	Statement stmt=conn.createStatement();
-	    	//删除File_Order内一条
-			String sql="delete from File_Order where orderid=";
-			sql=sql.concat(oid);
-		   //删除Order内一条
-			sql="delete from File_Order where orderid="+oid;
-			stmt.executeUpdate(sql);
-			//删除File_User内一条
-			sql="delete from File_Order where orderid="+oid;
-			stmt.executeUpdate(sql);
-			//删除file内多条
-			sql="delete from File_Order where orderid="+oid;
-			stmt.executeUpdate(sql);
 
-			System.out.println("Update seccessful!");
-			stmt.close();
-			conn.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	//查询多个订单的信息，通过用户号和是否打印的字段查到已打订单和未打订单	
-	public static LinkedList<String>SearchOrders(String userid,int weather)
+	//改，删除订单，所有该订单的文件也被删除，通过订单号删除
+	public static void updateOrder(User user)
+	 {
+	  String sql=null;
+	  Connection conn=null;
+	  Statement stmt=null;
+	  ResultSet rs=null;
+	  //创建用于执行静态sql语句的statement对象
+	     try {
+	   conn=DbcpJdbcUtil.getConnection();
+	      stmt=conn.createStatement(); 
+	      Scanner sc=new Scanner(System.in); 
+	   LinkedList<String> list = new LinkedList<String>(); 
+	   LinkedList<Integer> list1 = new LinkedList<Integer>(); 
+	      sql="select count(DORA2_0.dbo.User_Order.orderid) as ordernum from DORA2_0.dbo.User_Order,DORA2_0.dbo.Orders where userid="+user.getUserid()+"and whether=0 and DORA2_0.dbo.User_Order.orderid=DORA2_0.dbo.Orders.orderid";
+	  rs = stmt.executeQuery(sql);
+	   while(rs.next()) {
+	    int ordernum=rs.getInt(1);
+	    list1.add(ordernum);
+	   }     
+	      System.out.println("您有"+list1+"个未打印订单");
+	      sql="select DORA2_0.dbo.User_Order.orderid from DORA2_0.dbo.User_Order,DORA2_0.dbo.Orders where userid="+user.getUserid()+"and whether=0 and DORA2_0.dbo.User_Order.orderid=DORA2_0.dbo.Orders.orderid";
+		  rs = stmt.executeQuery(sql);
+		  System.out.println("分别为：");
+		   while(rs.next()) {
+		   String s=rs.getString(1);
+		    list.add(s);
+		    System.out.println(s);
+		   }     
+	      System.out.println("请输入您想删除的订单数量：");
+	      int num=sc.nextInt();
+	      String oid=null;
+	  for(int i=0;i<num;i++)
+	      { 
+	  Label1:while(true)
+	  {         
+	       System.out.println("请输入您想删除的订单号：");
+	       oid=sc.next();
+	      // System.out.println(oid);
+	   sql="select * from DORA2_0.dbo.User_Order where orderid='"+oid+"'";
+	    rs = stmt.executeQuery(sql);
+	   while(rs.next()) {
+	    String s =rs.getString(2);
+	    list.add(s);
+	   }   
+	   String str=list.toString();
+	   list.clear();
+	   if(str.equals(("["+user.getUserid()+"      ]")))
+	   {
+	    //删除User_Order
+	    sql="delete from DORA2_0.dbo.User_Order where orderid='"+oid+"'";
+	    stmt.executeUpdate(sql);
+	   // System.out.println("User_Order 删除成功！");
+	    //删除File_Order内一条
+	       sql="delete from DORA2_0.dbo.File_Order where orderid='"+oid+"'";
+	    stmt.executeUpdate(sql);
+	    //System.out.println("DORA2_0.dbo.File_Order 删除成功！");
+	          //删除Order内一条
+	       sql="delete from DORA2_0.dbo.Orders where orderid='"+oid+"'";
+	       stmt.executeUpdate(sql);
+	      // System.out.println("DORA2_0.dbo.Orders 删除成功！");
+	   }
+	   else
+	   {
+	    System.out.println("不存在此订单！请重新输入！");
+	    continue Label1;
+	   }
+	   
+	   System.out.println("订单 "+oid+"删除成功！"); 
+	   break;
+	      }
+	      }
+	   System.out.println("成功删除所选订单！");
+	   
+	  } catch (SQLException e) {
+	   // TODO Auto-generated catch block
+	   e.printStackTrace();
+	  }finally {
+          DbcpJdbcUtil.release(conn, stmt, null);
+      }
+
+	 }
+	//查询多个订单的信息，通过用户号和是否打印的字段查到已打订单和未打订单
+	public static LinkedList<String>SearchOrders(String userid)
 	{
-		int wea=weather;
 		Connection conn=null;
-		String sql="select orderid,Files.fileid,filename,color,singgleordouble "
-	    		+ "from File_Order,File_Type,Files,Type,User_Order,[Users],Orders+"
-	    		+ "where Users.userid="+userid+" and whether="+Integer.toString(wea)+ 
-	    		"and User_Order.orderid=Orders.orderid and User_Order.userid=Users.userid "
-	    		+ "and File_Order.fileid=Files.fileid and File_Order.orderid=Orders.orderid "
-	    		+ "and File_Type.fileid=Files.fileid and File_Type.typeid=Type.typeid";
-		LinkedList<String> list = new LinkedList<String>();
+		Statement stmt=null;
+		ResultSet rs=null;
+		 String sql="select DORA2_0.dbo.Orders.orderid,DORA2_0.dbo.Files.fileid,filename,color,DORA2_0.dbo.File_Order.singleordouble "
+		    		+ "from DORA2_0.dbo.File_Order,DORA2_0.dbo.File_Type,DORA2_0.dbo.Files,DORA2_0.dbo.Type,DORA2_0.dbo.User_Order,DORA2_0.dbo.Users,DORA2_0.dbo.Orders "
+		    		+ "where DORA2_0.dbo.Users.userid="+userid
+		    		+ "and whether="+0
+		    		+ "and DORA2_0.dbo.User_Order.orderid=DORA2_0.dbo.Orders.orderid and DORA2_0.dbo.User_Order.userid=DORA2_0.dbo.Users.userid "
+		    		+ " and DORA2_0.dbo.File_Order.fileid=DORA2_0.dbo.Files.fileid and DORA2_0.dbo.File_Order.orderid=DORA2_0.dbo.Orders.orderid  "
+		    		+ "and DORA2_0.dbo.File_Type.fileid=DORA2_0.dbo.Files.fileid and DORA2_0.dbo.File_Type.typeid=DORA2_0.dbo.Type.typeid";		
+		LinkedList<String> list = null;
 		try {
-		conn=DAOBase.getConnection();
-	    Statement stmt;
-			stmt = conn.createStatement();	
-			ResultSet rs = stmt.executeQuery(sql);
+			list=new LinkedList<String>();
+		conn=DbcpJdbcUtil.getConnection();
+		stmt = conn.createStatement();	
+		rs = stmt.executeQuery(sql);
+	    System.out.println("订单号                         文件号                                  文件名                       打印方式 ");
 		while(rs.next()) {
 			//通过上面的查看有几个表
 			String str =rs.getString(1) + " " + rs.getString(2)+" " +rs.getString(3)+" " +rs.getString(4)+" " +rs.getString(5);
+			System.out.println(str);
 			list.add(str);
 		}
-		conn.close();
-		stmt.close();
 		rs.close();
+		stmt.close();
+		conn.close();
+		
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally {
+		    DbcpJdbcUtil.release(conn, stmt,rs);
 		}
-		return list;	
+
+		return list;
 	}
-	public static void updateOrderwhether(String oid,String uid,Connection con)
+		
+		public static void updateOrderwhether(String uid)//修改已打订单的whether
 		{
 			//创建用于执行静态sql语句的statement对象
-		    try {
-		    	Connection conn=con;
-		    	Statement stmt=conn.createStatement();
-		    	String sql="update select * from Order,User_Order where (Order.orderid=User_Order.orderid) set whether=0 where orderid="+oid+"and userid"+uid;
-		    	stmt.executeUpdate(sql);
-				
-		    	
-				
-				System.out.println("Update seccessful!");
-				stmt.close();
-				conn.close();
+		    Connection conn=null;
+		    Scanner reader=null;
+		    Statement stmt=null;
+			try {
+				String sql=null;
+				reader= new Scanner(System.in);
+		    	conn=DbcpJdbcUtil.getConnection();
+		    	stmt=conn.createStatement();
+		    	System.out.println("请输入您想要打印的订单个数");
+		    	int num=reader.nextInt();
+		    	System.out.println("请输入您想要打印的订单号");		    	
+		    	String orderid=null;
+	    	    for(int i=0;i<num;i++)
+		    	{    	    	
+	    	    	orderid=reader.next();	
+		    		sql="update DORA2_0.dbo.Print_Function set whether=1 where DORA2_0.dbo.Print_Function.orderid='"+orderid+"' and DORA2_0.dbo.Print_Function.userid="+uid;		    	
+		    		stmt.executeUpdate(sql);
+		         }	    	
+			System.out.println("已成功打印！");
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}finally {
+	              DbcpJdbcUtil.release(conn, stmt, null);
+	    }
+
+			
 		}
+}
