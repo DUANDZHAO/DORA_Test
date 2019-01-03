@@ -1,4 +1,5 @@
-package DAODORA;
+package Order;
+
 public class Order
 {
 	private String orderid;
@@ -11,18 +12,6 @@ public class Order
 	}
 	public void setOrderid(String orderid) {
 		this.orderid = orderid;
-	}
-	public String getOrdercolor() {
-		return ordercolor;
-	}
-	public void setOrdercolor(String ordercolor) {
-		this.ordercolor = ordercolor;
-	}
-	public String getOrdersord() {
-		return ordersord;
-	}
-	public void setOrdersord(String ordersord) {
-		this.ordersord = ordersord;
 	}
 	public String getOrdertime() {
 		return ordertime;
