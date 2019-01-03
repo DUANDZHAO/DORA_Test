@@ -32,13 +32,16 @@ public class OrderDAOImp implements OrderDAO
 			//order里加一条，读取现在order的长度，然后赋值id号
 			conn=DbcpJdbcUtil.getConnection();
 			stmt=conn.createStatement();
-			String sql="select DORA2_0.dbo.Orders.orderid from DORA2_0.dbo.Orders";
-			ResultSet rs = stmt.executeQuery(sql);
-			while(rs.next()) {
-			String str = rs.getString(1);
-			list.add(str);
-			}//读取order长度,得到订单号			
-      		int num=list.size()+1;
+			String sql="select max(DORA2_0.dbo.Orders.orderid) from DORA2_0.dbo.Orders";
+  			ResultSet rs = stmt.executeQuery(sql);
+   			String str=null;
+   			while(rs.next()) 
+			{
+   				str = rs.getString(1);
+   				list.add(str);
+  				 }
+   			str=str.substring(5, 6);  
+       			int num=Integer.parseInt(str)+1;
 			sql="insert into DORA2_0.dbo.Orders values('order"+num+"','"+getFormatDate()+"','"+0+"')";
 			stmt.executeUpdate(sql);
 			System.out.println("order增加成功！");
