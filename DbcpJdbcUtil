@@ -1,0 +1,49 @@
+package DbcpUtil;
+ import org.apache.commons.dbcp2.BasicDataSourceFactory;
+import java.io.*;
+ import javax.sql.DataSource;
+ import java.sql.ResultSet;
+ import java.sql.Statement;
+ import java.io.InputStream;
+ import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+ import java.util.Properties;
+ 
+ public class DbcpJdbcUtil
+ {
+	 //建立连接
+	 private static DataSource ds=null;
+	 static
+	 {
+		try {
+			InputStream in= DbcpJdbcUtil.class.getClassLoader().getResourceAsStream("cp.properties");
+			Properties prop=new Properties();
+			prop.load(in);
+			ds=BasicDataSourceFactory.createDataSource(prop);//得到一个ds
+			
+		    } 
+		catch(Exception e) {e.printStackTrace();}
+	 }
+	 public static Connection getConnection()  throws SQLException{
+		return ds.getConnection(); 
+	 }
+	 //释放连接
+	public static void release(Connection conn,Statement stmt,ResultSet rs)
+	{  try {
+        if(rs != null ) {
+            rs.close();
+        }
+        if(stmt != null ) {
+            stmt.close();
+        }
+        if(conn != null ) {
+            conn.close();
+        }
+    }catch (Exception e) {
+        e.printStackTrace();
+    }
+	}
+
+ }
+	
