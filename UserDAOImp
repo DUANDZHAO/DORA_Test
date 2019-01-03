@@ -1,88 +1,108 @@
-package DAODORA;
-
-import java.util.LinkedList;
-import java.util.List;
+package User;
+import java.util.*;
+import DbcpUtil.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class UserDAOImp extends DAOBase implements UserDAO
+public class UserDAOImp implements UserDAO
 {
-	//增，注册新用户
+	private static final String Scanner = null;
+	Scanner reader=new Scanner(System.in);
+	//增，注册新用户//测试过
 	public  static void insertUser(User user)
 	{
 		Connection conn=null;
+		Statement stmt=null;
 		try {
-			conn=DAOBase.getConnection();
-			String sql="insert into [Users] values('"+user.getUserid()+"','"+user.getUsername()+"','"+user.getHistory()+"','"+user.getPassword()+"')";
-		    Statement stmt=conn.createStatement();//创建用于执行静态sql语句的statement对象
+			conn=DbcpJdbcUtil.getConnection();
+			String sql="insert into DORA2_0.dbo.Users values('"+user.getUserid()+"','"+user.getUsername()+"','"+user.getHistory()+"','"+user.getPassword()+"')";
+		    stmt=conn.createStatement();//创建用于执行静态sql语句的statement对象
 		    stmt.executeUpdate(sql);//执行插入操作的sql语句，并返回插入数据的个数
 		    System.out.println("注册成功！");
-		    stmt.close();
-			conn.close();
 		    }
 		catch (SQLException e) 
 		      {  
 	          e.printStackTrace(); 
-	          }  
+	          }  finally {
+	              DbcpJdbcUtil.release(conn, stmt, null);
+	          }
 	}
-	//改，改用户属性
-	public static void updateUser(String sql,Connection con)
+	//改，改用户属性//更改密码
+	@SuppressWarnings("resource")
+	public static void updateUser(String userid)
 	{
+		Connection conn=null;
+		Scanner reader=null; 
+		Statement stmt=null;
+		String sql=null;
+		ResultSet rs=null;
+		
 		//创建用于执行静态sql语句的statement对象
 	    try {
-	    	Connection conn=con;
-	    Statement stmt=conn.createStatement();
-			stmt.executeUpdate(sql);
-			System.out.println("Update seccessful!");
-			stmt.close();
-			conn.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	//查询一个学生信息，用户名和密码
-	public static String getUser(String uid,Connection con)
-	{
-		String password=null;
-		try
-		{
-			Connection conn=con;
-			Statement stmt=conn.createStatement();
-			String sql="select password from User where userid=";
-			sql=sql.concat(uid);
-			ResultSet rs = stmt.executeQuery(sql);
-			password=rs.getString(1);
-		}catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return password;
-	}
-	/*public static LinkedList<String>SearchUsers(String sql,Connection con)
-	{
+	    	conn=DbcpJdbcUtil.getConnection();	
+	    	reader=new Scanner(System.in);
+	   stmt=conn.createStatement();	
 		LinkedList<String> list = new LinkedList<String>();
-		try {
-		Connection conn=con;
-	    Statement stmt;	
-	    stmt = conn.createStatement();		
-	    ResultSet rs = stmt.executeQuery(sql);
+	Label:	while(true)
+		{
+			System.out.println("请输入旧密码");
+			String old=reader.next();
+    	sql="select DORA2_0.dbo.Users.password from DORA2_0.dbo.Users where DORA2_0.dbo.Users.userid="+userid;
+		rs = stmt.executeQuery(sql);
 		while(rs.next()) {
-			String str = rs.getInt(1) + " " + rs.getString(2);
+			String str =rs.getString(1);
 			list.add(str);
 		}
-		conn.close();
-		stmt.close();
-		rs.close();
+		System.out.println(list.toString());
+
+		if(list.toString().equals(("["+old+"]")))
+		{
+			System.out.println("请输入新密码");
+			sql ="update DORA2_0.dbo.Users set DORA2_0.dbo.Users.password="+reader.next()+"where DORA2_0.dbo.Users.userid="+userid;
+	        stmt.executeUpdate(sql);
+			System.out.println("密码修改成功！"+"\n"+"请重新登录！");
+			break;
+		}
+		else
+		{
+			for(int i=0;i<3;i++) 
+			{
+				System.out.println("密码错误！请重新输入！");
+			    continue Label;
+			}
+			System.out.println("密码错误次数过多！修改失败！请重新登录！");
+			break;		
+		}
+		}		
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}finally {
+            DbcpJdbcUtil.release(conn, stmt,rs);
+        }
+	}
+
+public static LinkedList<String>Search(String uid) {
+		Connection conn =null;
+			Statement stmt=null;
+			ResultSet rs=null;
+		LinkedList<String> list = new LinkedList<String>();
+		try {
+			conn = DbcpJdbcUtil.getConnection();
+			stmt = conn.createStatement();
+			String sql="select * from DORA2_0.dbo.Users where DORA2_0.dbo.Users.userid="+uid;
+			rs = stmt.executeQuery(sql);
+			while(rs.next()) {
+				String str =rs.getString(4);
+				list.add(str);
+			}
+		}catch(Exception e) {e.printStackTrace();
+			System.out.println(e.getMessage());
+		}finally {
+            DbcpJdbcUtil.release(conn, stmt,rs);
+        }
 		return list;
-
-
-		
-	}*/
+	}	
 }
