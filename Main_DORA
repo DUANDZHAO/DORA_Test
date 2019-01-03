@@ -54,7 +54,17 @@ public class Main_DORA {
 				LinkedList<String> list = new LinkedList<String>();
 				list=FileDAOImp.getFile(userid);
 				if(list.size()==0)
-					System.out.println("您没有历史打印订单！");	
+				{
+					System.out.println("您没有历史打印订单！");
+					continue;
+				}
+					
+				do {
+			    	  System.out.printf("按文件类型查看："+"\n\t"+"1——word"+"\n\t"+ "2——ppt"+"\n\t"+"3——pdf"+"\n\t"+"4——jpg");
+			    	  TypeDAOImp.SearchTypes(reader.next(), userid, 1);
+			    	  System.out.println("返回上一级请按0,继续请按1");
+			    	  ret=reader.nextInt();
+			     }while(ret==1);
 				list.clear();
 			    continue;
 			case 2:
