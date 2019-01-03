@@ -1,3 +1,4 @@
+
 import java.util.*;
 import java.sql.*;
 import java.util.*;
@@ -14,7 +15,7 @@ public class Main_DORA {
 	String userid,username,password,sql;
 	User user=new User();
 	Scanner reader=new Scanner(System.in);
-	System.out.println("您好！欢迎使用多啦打印系统！注册新用户请输入1，已经注册过请输入2");
+	System.out.println("您好！欢迎使用多辣打印系统！注册新用户请输入1，已经注册过请输入2");
 	i=reader.nextInt();
 	if(i==1)
 	{
@@ -31,6 +32,8 @@ public class Main_DORA {
 		UserDAOImp.insertUser(user);
 		
 	}
+	else {}			    
+
 	Label: 
 		while(true)
 	  {
@@ -55,24 +58,58 @@ public class Main_DORA {
 				list=FileDAOImp.getFile(userid);
 				if(list.size()==0)
 				{
-					System.out.println("您没有历史打印订单！");
+					System.out.println("您没有历史打印订单！");	
 					continue;
+				}				
+				else
+				{
+					int ret=0;
+					do {
+						   list.clear();
+				           System.out.printf("按文件类型查看：(请输入序号查看对应文件类型)"+"\n\t"+"1——word"+"\n\t"+ "2——ppt"+"\n\t"+"3——pdf"+"\n\t"+"4——jpg"+"\n\t"+"0——退出");
+				           ret=reader.nextInt(); 
+				           if(ret==0)
+				        	   break;
+				           else
+				           {
+				        	   list=TypeDAOImp.SearchTypes(Integer.toString(ret), userid, 1); 
+				        	   if(list.size()==0)
+				        		   System.out.println("您没有此类文件"); 
+				        	System.out.println("返回上一级请按0,继续请按1");
+				        	ret=reader.nextInt(); 				        	   
+				           }
+					}while(ret==1);
 				}
-					
-				do {
-			    	  System.out.printf("按文件类型查看："+"\n\t"+"1——word"+"\n\t"+ "2——ppt"+"\n\t"+"3——pdf"+"\n\t"+"4——jpg");
-			    	  TypeDAOImp.SearchTypes(reader.next(), userid, 1);
-			    	  System.out.println("返回上一级请按0,继续请按1");
-			    	  ret=reader.nextInt();
-			     }while(ret==1);
-				list.clear();
+				
 			    continue;
 			case 2:
-				list=OrderDAOImp.SearchOrders(userid);
+				list=FileDAOImp.getFile(userid);
 				if(list.size()==0)
-					System.out.println("您没有未打印订单！");					
-				list.clear();
-				continue;
+				{
+					System.out.println("您没有未打印订单！");	
+					continue;
+				}				
+				else
+				{
+					int ret=0;
+					 do {
+						 list.clear();
+				           System.out.printf("按文件类型查看：(请输入序号查看对应文件类型)"+"\n\t"+"1——word"+"\n\t"+ "2——ppt"+"\n\t"+"3——pdf"+"\n\t"+"4——jpg"+"\n\t"+"0——退出");
+				    	  ret=reader.nextInt(); 
+				           if(ret==0)
+				        	   break;
+				           else
+				           {
+				        	   list=TypeDAOImp.SearchTypes(Integer.toString(ret), userid, 1); 
+				        	   if(list.size()==0)
+				        		   System.out.println("您没有此类文件"); 
+				        	System.out.println("返回上一级请按0,继续请按1");
+				        	ret=reader.nextInt(); 				        	   
+				           }
+				     }while(ret==1);
+				}
+				
+			    continue;
 			case 3:
 				OrderDAOImp.updateOrderwhether(userid);
 				continue;
@@ -99,7 +136,7 @@ public class Main_DORA {
 	    }
 	    	
 	   
-	  }	
+	  }
 }
 }
 		
