@@ -1,4 +1,4 @@
-package DAODORA;
+package User;
 public class User
 {
 	public String userid;
